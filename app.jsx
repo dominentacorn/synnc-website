@@ -1,8 +1,8 @@
 // App.jsx
 import React, { useState } from "react";
 import { ShoppingCart, LogOut, Plus } from "lucide-react";
-import './index.css';
-import logo from "./assets/Syncc Logo.png";
+
+const logo = "https://upload.wikimedia.org/wikipedia/commons/9/99/Unofficial_JavaScript_logo_2.svg"; // Fallback logo URL
 
 const mockProducts = [
   {
