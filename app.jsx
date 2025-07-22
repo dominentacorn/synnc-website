@@ -1,135 +1,146 @@
+// App.jsx
 import React, { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { ShoppingCart, Plus, LogOut } from "lucide-react";
+import { ShoppingCart, LogOut, Plus } from "lucide-react";
+import './index.css';
+import logo from "./assets/Syncc Logo.png";
 
 const mockProducts = [
   {
     id: 1,
     name: "Moderation Bot",
     price: "$9.99",
-    description: "Powerful mod commands, logs, auto mod, and more."
+    description: "Powerful moderation system with auto-mod, logging & role-based punishments.",
   },
   {
     id: 2,
-    name: "Ticket System",
+    name: "Ticket Panel",
     price: "$7.99",
-    description: "Advanced ticket panel with dropdowns, claiming & closing."
+    description: "Fully customizable ticket system with claim/close buttons.",
   },
   {
     id: 3,
     name: "Giveaway Bot",
     price: "$5.99",
-    description: "Run giveaways, reroll winners, auto entries, and more."
-  }
+    description: "Easy-to-use giveaway bot with auto rerolls & reaction-based entry.",
+  },
 ];
 
-export default function SynccDashboard() {
-  const [products, setProducts] = useState(mockProducts);
+export default function App() {
   const [view, setView] = useState("store");
   const [orders, setOrders] = useState([]);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [adminPasswordInput, setAdminPasswordInput] = useState("");
-  const adminPassword = "synccsecure123";
+  const [password, setPassword] = useState("");
+  const [authenticated, setAuthenticated] = useState(false);
 
   const handleBuy = (product) => {
-    setOrders([...orders, { product, date: new Date().toLocaleString() }]);
-    alert(`Purchased ${product.name}`);
+    alert(`Purchased: ${product.name}`);
+    setOrders([...orders, { ...product, date: new Date().toLocaleString() }]);
   };
 
   const handleAddProduct = () => {
-    const name = prompt("Product Name:");
-    const price = prompt("Price:");
-    const description = prompt("Description:");
+    const name = prompt("Product name?");
+    const price = prompt("Product price?");
+    const description = prompt("Product description?");
     if (name && price && description) {
-      const newProduct = {
-        id: Date.now(),
+      mockProducts.push({
+        id: mockProducts.length + 1,
         name,
         price,
-        description
-      };
-      setProducts([...products, newProduct]);
+        description,
+      });
+      alert("Product added! Reload the page.");
     }
   };
 
-  const handleDashboardAccess = () => {
-    if (adminPasswordInput === adminPassword) {
-      setIsAuthenticated(true);
-      setView("dashboard");
-    } else {
-      alert("Incorrect password");
-    }
-  };
+  if (view === "admin" && !authenticated) {
+    return (
+      <div className="min-h-screen bg-black flex flex-col justify-center items-center text-white">
+        <img src={logo} alt="logo" className="w-24 mb-6" />
+        <h1 className="text-3xl font-bold mb-4">Admin Access</h1>
+        <input
+          type="password"
+          placeholder="Enter Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className="px-4 py-2 rounded bg-gray-800 text-white focus:outline-none"
+        />
+        <button
+          onClick={() => {
+            if (password === "synccsecure123") setAuthenticated(true);
+            else alert("Incorrect password");
+          }}
+          className="mt-4 px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 rounded hover:opacity-90"
+        >
+          Login
+        </button>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-zinc-900 to-zinc-800 text-white p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Syncc Admin</h1>
-        <div className="space-x-2">
-          <Button variant="outline" onClick={() => setView("store")}>Store</Button>
-          <Button variant="outline" onClick={() => setView("dashboard")}>Dashboard</Button>
-          <Button variant="destructive" onClick={() => { setIsAuthenticated(false); alert("Logged out"); }}>Logout</Button>
+    <div className="min-h-screen bg-black text-white">
+      <header className="p-4 flex justify-between items-center border-b border-gray-800">
+        <div className="flex items-center gap-2">
+          <img src={logo} alt="Syncc" className="w-10" />
+          <h1 className="text-xl font-bold">Syncc</h1>
         </div>
-      </div>
-
-      {!isAuthenticated && (
-        <div className="max-w-md mx-auto bg-zinc-800 p-6 rounded-lg shadow-md">
-          <h2 className="text-xl font-semibold mb-4">Admin Login</h2>
-          <input
-            type="password"
-            placeholder="Enter admin password"
-            value={adminPasswordInput}
-            onChange={(e) => setAdminPasswordInput(e.target.value)}
-            className="w-full p-2 rounded mb-4 text-black"
-          />
-          <Button className="w-full" onClick={handleDashboardAccess}>
-            Login
-          </Button>
-        </div>
-      )}
+        <nav className="space-x-4">
+          <button onClick={() => setView("store")} className="hover:underline">Store</button>
+          <button onClick={() => setView("admin")} className="hover:underline">Admin</button>
+        </nav>
+      </header>
 
       {view === "store" && (
-        <div>
-          <h2 className="text-2xl font-semibold mb-4">Syncc Bot Store</h2>
-          <div className="grid md:grid-cols-3 gap-6">
-            {products.map((product) => (
-              <Card key={product.id} className="bg-zinc-800">
-                <CardContent className="p-4">
-                  <h3 className="text-lg font-semibold mb-1">{product.name}</h3>
-                  <p className="text-sm mb-2">{product.description}</p>
-                  <p className="text-md font-bold mb-2">{product.price}</p>
-                  <Button onClick={() => handleBuy(product)} className="w-full flex items-center gap-2">
-                    <ShoppingCart className="w-4 h-4" /> Buy Now
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
+        <main className="grid grid-cols-1 md:grid-cols-3 gap-6 p-6">
+          {mockProducts.map((product) => (
+            <div
+              key={product.id}
+              className="bg-gray-900 rounded-2xl p-6 shadow-lg hover:shadow-blue-500/30 border border-gray-800"
+            >
+              <h2 className="text-lg font-bold text-blue-400">{product.name}</h2>
+              <p className="text-sm text-gray-400 mb-2">{product.description}</p>
+              <div className="flex justify-between items-center mt-4">
+                <span className="text-xl font-semibold">{product.price}</span>
+                <button
+                  onClick={() => handleBuy(product)}
+                  className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-1 rounded"
+                >
+                  Buy Now
+                </button>
+              </div>
+            </div>
+          ))}
+        </main>
+      )}
+
+      {view === "admin" && authenticated && (
+        <div className="p-6">
+          <div className="flex justify-between mb-4">
+            <h2 className="text-2xl font-bold">Orders</h2>
+            <button
+              onClick={handleAddProduct}
+              className="flex items-center gap-2 bg-purple-600 px-4 py-2 rounded hover:bg-purple-700"
+            >
+              <Plus size={16} /> Add Product
+            </button>
           </div>
+          <ul className="space-y-4">
+            {orders.map((order, i) => (
+              <li
+                key={i}
+                className="bg-gray-800 rounded-xl p-4 flex justify-between items-center"
+              >
+                <span>{order.name} - {order.price}</span>
+                <span className="text-sm text-gray-400">{order.date}</span>
+              </li>
+            ))}
+            {orders.length === 0 && <p>No orders yet.</p>}
+          </ul>
         </div>
       )}
 
-      {view === "dashboard" && isAuthenticated && (
-        <div>
-          <h2 className="text-2xl font-semibold mb-4">Admin Dashboard</h2>
-          <Button onClick={handleAddProduct} className="mb-6 flex items-center gap-2">
-            <Plus className="w-4 h-4" /> Add Product
-          </Button>
-          <div>
-            <h3 className="text-lg font-medium mb-2">Orders</h3>
-            {orders.length === 0 ? (
-              <p className="text-gray-400">No orders yet.</p>
-            ) : (
-              <ul className="space-y-2">
-                {orders.map((order, index) => (
-                  <li key={index} className="border p-2 rounded">
-                    <strong>{order.product.name}</strong> — {order.product.price} <span className="text-sm text-gray-400">({order.date})</span>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-        </div>
-      )}
+      <footer className="text-center text-gray-500 py-6 border-t border-gray-800">
+        <p>© 2025 Syncc Technologies — Built for Roblox + Discord Developers</p>
+      </footer>
     </div>
   );
 }
